@@ -4,7 +4,7 @@ version: 1.0.0
 date: 2010/12/17
 creator: D. Grant Starkweather 
 license: GPLv3
-contact: starkdg@gmail.com
+contact: starkd88@gmail.com
 -------------------------------------------------------------------------------
 
 BACKGROUND:
