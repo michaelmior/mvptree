@@ -32,7 +32,7 @@ IMGET_LIBS = -lX11 -lXext -lXrandr -ljpeg
 #DEPS_LIBS += /usr/local/lib/libprng.a
 
 
-all : $(TEST) $(TEST2) $(TEST3)
+all : $(TEST) $(TEST2)
 
 clean :
 	rm -f a.out core *.o *.t

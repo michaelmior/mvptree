@@ -22,6 +22,15 @@ and all all the vantage points).
 
 -------------------------------------------------------------------------------
 
+PLATFORMS:
+
+This release should work fine on all linux/unix platforms.  Successful compilation and testing
+has been achieved on windows using cygwin. However, msys/mingw is still a problem due to the 
+memory mapping functions in windows.  (Any hints at mmap emulation on windows would be greatly 
+appreciated.) 
+
+---------------------------------------------------------------------------------
+
 INSTALLATION:
 
 1) Type 'make all' to build the libmvptree.a library and test programs.

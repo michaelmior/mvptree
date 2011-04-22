@@ -81,6 +81,17 @@ float point_l2_distance(MVPDP *pointA, MVPDP *pointB){
     return result;
 }
 
+
+MVPDP* mvpdp_dup(MVPDP *dp){
+    MVPDP *newpnt = dp_alloc(dp->type);
+    if (!newpnt) return NULL;
+    newpnt->datalen = dp->datalen;
+    newpnt->data = malloc(dp->datalen*dp->type);
+    memcpy(newpnt->data, dp->data, dp->datalen*dp->type);
+    newpnt->id = strdup(dp->id);
+    return newpnt;
+}
+
 MVPDP* generate_point(const unsigned int dp_length){
     /* generate one datapoint with UINT32ARRAY type data of length dp_length */
     static unsigned long long uid = 0;
@@ -166,7 +177,6 @@ MVPDP** generate_cluster(unsigned int nbpoints, unsigned int dplength, int var, 
 	}
     }
 
-    fprintf(stdout,"cluster - maximum distance from center point, %f\n", max_distance);
     return points;
 }
 
@@ -180,7 +190,7 @@ int main(int argc, char **argv){
     const unsigned int nbpoints = atoi(argv[1]);
     const float radius = atof(argv[2]);
     const unsigned int nbcluster1 = nbpoints/10;
-    const unsigned int knearest = nbpoints;
+    const unsigned int knearest = nbpoints/2;
     const unsigned int dplength = 10;
     const int var = 10;
     const char *testfile = "testfile.mvp";
@@ -188,61 +198,108 @@ int main(int argc, char **argv){
 
     srand(98293928);
 
-    fprintf(stdout,"Generate %u uniformly distributed datapoints.\n\n", nbpoints);
+    /* generate points */
     MVPDP  **pointlist = generate_uniform_points(nbpoints, dplength);
     assert(pointlist);
 
 
-    MVPTree *tree = mvptree_alloc(NULL, distance_func,\
-                               MVP_BRANCHFACTOR, MVP_PATHLENGTH, MVP_LEAFCAP);
-    assert(tree);
-
-    fprintf(stdout,"Add %u points to tree.\n", nbpoints);
-    MVPError err = mvptree_add(tree, pointlist, nbpoints);
-    if (err != MVP_SUCCESS){
-	fprintf(stdout,"Unable to add to tree - %s\n", mvp_errstr(err));
-    }
-
-
-    fprintf(stdout,"Generate cluster.\n");
     MVPDP **cluster1 = generate_cluster(nbcluster1, dplength, var, distance_func);
     assert(cluster1);
 
-    fprintf(stdout,"Add %d clustered points to tree.\n", nbcluster1);
+
+    MVPTree *tree = mvptree_alloc(NULL, distance_func,  MVP_BRANCHFACTOR, MVP_PATHLENGTH, MVP_LEAFCAP);
+    assert(tree);
+
+    printf("Add %d points to tree.\n", nbpoints);
+
+    /* add points to tree */
+    MVPError err = mvptree_add(tree, pointlist, nbpoints);
+    assert(err == MVP_SUCCESS);
+
+    printf("Add cluster of %d points to tree.\n", nbcluster1);
+
+    /* add cluster to tree */
     err = mvptree_add(tree, cluster1, nbcluster1);
-    if (err != MVP_SUCCESS){
-	fprintf(stdout,"Unable to add cluster to tree - %s\n", mvp_errstr(err));
-    }
+    assert(err == MVP_SUCCESS);
  
-    getchar();
 
-    fprintf(stdout,"-----------------print----------------------\n");
-    mvptree_print(stdout, tree);
-    fprintf(stdout,"--------------------------------------------\n");
+    /* save the cluster center for later retrieval */
+    MVPDP *cluster_center = mvpdp_dup(cluster1[0]);
 
-
-    fprintf(stdout,"looking up %s\n", cluster1[0]->id);
-    nbcalcs = 0;
-    unsigned int nbresults = 0;
-    MVPDP **results = mvptree_retrieve(tree, cluster1[0], knearest, radius, &nbresults, &err);
-    if (!results || err != MVP_SUCCESS){
-	fprintf(stdout,"No results found - %s\n", mvp_errstr(err));
-    }
-
-    fprintf(stdout,"------------------Results %d (%d calcs)---------\n",nbresults,nbcalcs);
-    unsigned int i;
-    for (i = 0;i < nbresults;i++){
-	fprintf(stdout,"(%d) %s\n", i, results[i]->id);
-    }
-    fprintf(stdout,"------------------------------------------------\n\n");
-
-
-    free(results);
-    mvptree_clear(tree, free);
-    free(tree);
+    /* free the list of points but not the points themselves */
+    /* the tree takes ownership of the points  */
     free(pointlist);
     free(cluster1);
-    fprintf(stdout,"Done.\n");
 
+
+    printf("Write the tree to file, %s.\n", testfile);
+
+    /* write the tree out */
+    err = mvptree_write(tree, testfile, 00755);
+    assert(err == MVP_SUCCESS);
+
+    /* destroy the tree */
+    mvptree_clear(tree, free);
+    free(tree);
+
+
+    printf("Read the tree from file, %s.\n", testfile);
+
+    /* read tree back in */
+    tree = mvptree_read(testfile, distance_func, MVP_BRANCHFACTOR, MVP_PATHLENGTH, MVP_LEAFCAP, &err);
+    assert(tree);
+
+    MVPDP *savedpoint = NULL;
+    int count = 0, total = 10;
+    do {
+	MVPDP *pnt = generate_point(dplength);
+	assert(pnt);
+	if (count==0) savedpoint = mvpdp_dup(pnt);
+	printf("Add point %s.\n", pnt->id);
+	err = mvptree_add(tree, &pnt, 1);
+	assert(err == MVP_SUCCESS);
+
+    } while (++count < total);
+
+
+    printf("Retrieve cluster center point, %s.\n", cluster_center->id);
+
+    /* retrieve cluster */ 
+    nbcalcs = 0;
+    unsigned int nbresults = 0;
+    MVPDP **results = mvptree_retrieve(tree, cluster_center, knearest, radius, &nbresults, &err);
+    assert(results);
+    assert(err == MVP_SUCCESS);
+
+    /* print out results */
+    unsigned int i;
+    for (i = 0;i < nbresults;i++){
+	printf("  FOUND --> (%d) %s\n", i, results[i]->id);
+    }
+
+    free(results);
+
+    printf("Retrieved point, %s.\n", savedpoint->id);
+    nbcalcs = 0;
+    results = mvptree_retrieve(tree, savedpoint, knearest, radius, &nbresults, &err);
+    assert(results);
+    assert(err == MVP_SUCCESS);
+    
+    for (i=0;i<nbresults;i++){
+	printf("  FOUND --> (%d) %s\n", i, results[i]->id);
+    }
+
+    free(results);
+
+    err = mvptree_write(tree, testfile, 00755);
+    assert(err == MVP_SUCCESS);
+
+
+    /* cleanup */
+    dp_free(cluster_center, free);
+    dp_free(savedpoint, free);
+    mvptree_clear(tree, free);
+    free(tree);
+    printf("Done.\n");
     return 0;
 }
