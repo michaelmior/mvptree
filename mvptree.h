@@ -1,25 +1,23 @@
 /*
-
-    MVPTree c library 
-    Copyright (C) 2008-2009 by D. Grant Starkweather
-    All rights reserved.
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-    D Grant Starkweather - starkd88@gmail.com
-
-*/
+ *  MVPTree c library
+ *  Copyright (C) 2008-2009 by D. Grant Starkweather.
+ *  All rights reserved.
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *  D Grant Starkweather - starkd88@gmail.com
+ */
 
 #ifndef _MVPTREE_H
 #define _MVPTREE_H
@@ -76,14 +74,12 @@ typedef struct mvp_datapoint_t {
     MVPDataType type;       /* type of data (the bitwidth of each data element) */
 } MVPDP;
 
-
-
 /* call back function for mvp tree functions - to performa distance calc.'s*/
 typedef float (*CmpFunc)(MVPDP *pointA, MVPDP *pointB);
 
 /* Callback function to pass to mvp_clear() to free id and data members of the datapoints, */
 /* since the id and data arrays are allocated by user, not by dp_alloc() function. */
-typedef void  (*MVPFreeFunc)(void *ptr);
+typedef void (*MVPFreeFunc)(void *ptr);
 
 typedef struct node_internal_t {
     NodeType type;
@@ -115,7 +111,7 @@ typedef struct mvptree_t {
     int leafcap;           /* capacity of leaf nodes  (number datapoints)             */
     int fd;                /* internal use                                            */
     int k;                 /* internal use for retrieve function (knearest)           */
-    MVPDataType datatype;     /* internal use                                            */  
+    MVPDataType datatype;  /* internal use                                            */  
     off_t pos;             /* internal use for mvp_read() and mvp_write()             */
     off_t size;            /* internal use for mvp_read() and mvp_write()             */
     off_t pgsize;          /* system page size (interal use)                          */
@@ -139,7 +135,7 @@ typedef struct mvptree_t {
  *   
  *   pointer to DP structure, NULL for error.    
  *
-*/
+ */
 MVPDP* dp_alloc(MVPDataType type);
 
 /*   dp_free
@@ -158,7 +154,6 @@ MVPDP* dp_alloc(MVPDataType type);
  *
  *   void
  */
-
 void dp_free(MVPDP *dp, MVPFreeFunc free_func);
 
 /*   mvptree_alloc
@@ -181,9 +176,8 @@ void dp_free(MVPDP *dp, MVPFreeFunc free_func);
  *
  *   MVPTree* ptr, NULL for error
  *    
-*/
-
-MVPTree* mvptree_alloc(MVPTree *tree,CmpFunc distance,\
+ */
+MVPTree* mvptree_alloc(MVPTree *tree,CmpFunc distance,
                                        unsigned int bf,unsigned int p,unsigned int k);
 
 /*
@@ -205,8 +199,7 @@ MVPTree* mvptree_alloc(MVPTree *tree,CmpFunc distance,\
  *  RETURN 
  *
  *  void
-*/
-
+ */
 void mvptree_clear(MVPTree *tree, MVPFreeFunc free_func);
 
 /*
@@ -231,7 +224,6 @@ void mvptree_clear(MVPTree *tree, MVPFreeFunc free_func);
  *
  *   MVPError error code
  */
-
 MVPError mvptree_add(MVPTree *tree, MVPDP **points, unsigned int nbpoints);
 
 /*
@@ -261,8 +253,7 @@ MVPError mvptree_add(MVPTree *tree, MVPDP **points, unsigned int nbpoints);
  *           They are still owned by the tree.)
  *
  */
-
-MVPDP** mvptree_retrieve(MVPTree *tree, MVPDP *target, unsigned int knearest, float radius,\
+MVPDP** mvptree_retrieve(MVPTree *tree, MVPDP *target, unsigned int knearest, float radius,
                                        unsigned int *nbresults, MVPError *error);
 
 /*
@@ -285,8 +276,6 @@ MVPDP** mvptree_retrieve(MVPTree *tree, MVPDP *target, unsigned int knearest, fl
  *   MVPError code
  *
  */
-
-
 MVPError mvptree_write(MVPTree *tree, const char *filename, int mode);
 
 /*   mvptree_read
@@ -308,7 +297,6 @@ MVPError mvptree_write(MVPTree *tree, const char *filename, int mode);
  *   MVPTree ptr, or NULL on error (and error is set to error code)
  *
  */
-
 MVPTree* mvptree_read(const char *filename, CmpFunc fnc, int branchfactor, int pathlength,\
                                                   int leafcapacity, MVPError *error);
 
@@ -329,7 +317,6 @@ MVPTree* mvptree_read(const char *filename, CmpFunc fnc, int branchfactor, int p
  *   MVPERror code
  *
  */
-
 MVPError mvptree_print(FILE *stream, MVPTree *tree);
 
 /*   mvp_error
