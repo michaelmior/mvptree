@@ -43,7 +43,7 @@ install : $(HFLS) $(LIBRARY)
 	install -c -m 444 $(LIBRARY) $(DESTDIR)/lib
 	$(RANLIB) $(DESTDIR)/lib/$(LIBRARY)
 
-$(LIBRARY) : $(OBJS)
+$(LIBRARY) : $(OBJS) $(HFLS)
 	ar cr $(LIBRARY) $?
 	$(RANLIB) $@
 
