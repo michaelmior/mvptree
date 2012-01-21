@@ -47,8 +47,6 @@ $(LIBRARY) : $(OBJS)
 	ar cr $(LIBRARY) $?
 	$(RANLIB) $@
 
-imget : $(TEST3)
-
 tests : $(TEST) $(TEST2) $(TEST3)
 
 $(TEST) : $(LIBRARY) $(TEST).o 
@@ -61,15 +59,15 @@ $(TEST2): $(LIBRARY) $(TEST2).o
 	$(CC) $(CFLAGS) $(LDFLAGS) $(TEST2).o $(LIBRARY) $(DEPS_LIBS)
 	mv a.out $@
 
-$(TEST3): $(LIBRARY) $(TEST3).o
+imget: $(LIBRARY) imget.o
 	rm -f $@
-	g++ $(CFLAGS) $(IMGET_DEFINES) $(CPPFLAGS) $(LDFLAGS) $(TEST3).o $(LIBRARY) $(DEPS_LIBS) $(IMGET_LIBS)
+	g++ $(CFLAGS) $(IMGET_DEFINES) $(CPPFLAGS) $(LDFLAGS) imget.o $(LIBRARY) $(DEPS_LIBS) $(IMGET_LIBS)
 	mv a.out $@
 
 .c.o :
 	rm -f $@
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(TEST3).o : 
+imget.o : imget.cpp
 	rm -f $@
-	g++ $(CFLAGS) $(CPPFLAGS) -c $(TEST3).cpp -o $@
+	g++ $(CFLAGS) $(CPPFLAGS) -c imget.cpp -o $@
