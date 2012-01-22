@@ -259,7 +259,7 @@ int main(int argc, char **argv){
                 MVPDP **results = mvptree_retrieve(tree, points[i], knearest,\
                                                                        radius, &nbresults, &err);
                 printf("-----------%u results (%llu calcs)--------------\n", nbresults, nbcalcs);
-                for (int j=0;j<nbresults;j++){
+                for (unsigned int j=0; j < nbresults; j++) {
                     printf("(%d) %s\n", j, results[j]->id);
                 }
                 printf("-----------------------------------------------\n");

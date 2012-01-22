@@ -163,7 +163,6 @@ MVPDP** generate_cluster(unsigned int nbpoints, unsigned int dplength, int var, 
 	    return NULL;
 	}
 	
-	float val;
 	int32_t *new_row  = (int32_t*)points[i]->data;
 	for (j=0;j<dplength;j++){
 	    int diff = next_poisson_int(var);

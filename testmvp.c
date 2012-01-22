@@ -301,7 +301,6 @@ int main(int argc, char **argv){
     mvptree_clear(tree, free);
     free(tree);
 
- cleanup:
     dp_free(cluster_center, free);
     dp_free(savedpoint, free);
 

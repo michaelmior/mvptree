@@ -234,7 +234,7 @@ static int find_splits(MVPDP **points, unsigned int nb, MVPDP *vp, MVPTree *tree
     CmpFunc distfunc = tree->dist;
     float *dist = (float*) malloc(nb*sizeof(float));
 
-    int i, j, error = 0;
+    int i, j;
     for (i = 0; i < nb; i++) {
         dist[i] = distfunc(points[i], vp);
         if (is_nan(dist[i]) || dist[i] < 0.0f) {
@@ -332,7 +332,7 @@ static int find_distance_range_for_vp(MVPDP **points, unsigned int nbpoints, MVP
     }
 
     CmpFunc func = tree->dist;
-    int i, j, error = 0;
+    int i, error = 0;
     for (i = 0; i < nbpoints; i++) {
         float d = func(vp, points[i]);
         if (is_nan(d) || d < 0.0f) {
@@ -357,7 +357,6 @@ static Node* _mvptree_add(MVPTree *tree, Node *node, MVPDP **points, unsigned in
 
     CmpFunc dist_fnc = tree->dist;
     int bf = tree->branchfactor, lengthM1 = bf-1;
-    float max_distance, min_distance;
 
     if (new_node == NULL) { /* create new node */
         int sv1_pos, sv2_pos;

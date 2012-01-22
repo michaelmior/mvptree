@@ -9,7 +9,7 @@ OBJS	= mvptree.o
 
 CC	= cc
 
-CFLAGS	= -g -O3 -I. $(DEFINES)
+CFLAGS	= -g -O3 -I. -Wall $(DEFINES)
 
 CPPFLAGS += -pthread -I /usr/local/include
 
