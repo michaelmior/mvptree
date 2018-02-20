@@ -656,7 +656,7 @@ MVPError _mvptree_retrieve(MVPTree *tree,Node *node,MVPDP *target, float radius,
             results[(*nbresults)++] = node->leaf.sv1;
             if (*nbresults >= tree->k) { return MVP_KNEARESTCAP; }
         }
-        if (tree->node->leaf.sv2) {
+        if (node->leaf.sv2) {
             d2 = distance(target, node->leaf.sv2);
 
             if (is_nan(d2) || d2 < 0.0f) {
